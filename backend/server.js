@@ -10,6 +10,8 @@ const port = process.env.PORT || 9000;
 app.use(cors());
 app.use(express.json());
 
+
+// Database connectivity
 const uri = process.env.ATLAS_URI;
 mongoose.connect(uri, { 
     useNewUrlParser: true,
@@ -27,12 +29,14 @@ connection.once('open', (err) => {
 const usersRouter = require('./routes/users');
 const formRouter = require('./routes/form');
 
+// routing the request to controller
 app.use('/form', formRouter);
 app.use('/users', usersRouter);
 app.use('/uploads/actions', express.static(path.join(__dirname, 'uploads/actions')));
 app.use('/static', express.static('public'))
 
 
+// Starting server by specific router
 app.listen(port, () => {
     console.log(`Server is running on port: ${port}`);
 });

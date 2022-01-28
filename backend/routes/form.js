@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const formCreationModel = require('../models/formcreation.model');
+const sharp = require('sharp');
+
+// Image upload by multer
 var multer  = require('multer');
 var mkdirp = require('mkdirp');
 const path = require("path");
-const sharp = require('sharp');
-
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
     //var code = JSON.parse(req.body.model).empCode;
@@ -18,19 +19,22 @@ var storage = multer.diskStorage({
     cb(null, Date.now()+'-'+file.originalname);
   }
 });
-
 var upload = multer({ storage: storage });
 
+// Create data
 router.post('/create', upload.any(),async (req, res) =>{
     try {
     const data = JSON.parse(req.body.anotherdata)
     if (req.files) {
         let fileLocation ='./../public/uploads/'+req.files[0].filename;
-        
+
+        // Image reduce size 
+        // thumbnail
         sharp(path.resolve(__dirname +fileLocation))
             .resize(300,300)
             .toFile('./public/uploads/thumbnail-'+req.files[0].filename);
 
+        // preview
         sharp(path.resolve(__dirname +fileLocation))
             .resize(900,900)
             .toFile('./public/uploads/preview-'+req.files[0].filename);
@@ -40,7 +44,8 @@ router.post('/create', upload.any(),async (req, res) =>{
             imagedescription: data.imagedescription ? data.imagedescription : 'null',
             attachementOrginalName:req.files[0].originalname,
             attachementName:req.files[0].filename,
-            compressedattachementName:req.files[0].filename,
+            thumbnailAttachementName: 'thumbnail-'+req.files[0].filename,
+            previewAttachementName: 'preview-'+req.files[0].filename,
             category: data.category ? data.category:'',
             itemForSale: data.itemForSale,
             amount: data.amount ? data.amount:'',
@@ -54,16 +59,19 @@ router.post('/create', upload.any(),async (req, res) =>{
     }  
 });
 
+// Update data by id
 router.post('/update', upload.any(),async (req, res) =>{
     try {
         const data = JSON.parse(req.body.anotherdata)
     if (req.files.length>0) {
 
         let fileLocation ='./../public/uploads/'+req.files[0].filename;
+        // Image reduce size 
+        // thumbnail
         sharp(path.resolve(__dirname +fileLocation))
             .resize(300,300)
             .toFile('./public/uploads/thumbnail-'+req.files[0].filename);
-
+        // preview
         sharp(path.resolve(__dirname +fileLocation))
             .resize(900,900)
             .toFile('./public/uploads/preview-'+req.files[0].filename);
@@ -73,7 +81,8 @@ router.post('/update', upload.any(),async (req, res) =>{
             imagedescription: data.imagedescription ? data.imagedescription : 'null',
             attachementOrginalName:req.files[0].originalname,
             attachementName:req.files[0].filename,
-            compressedattachementName:req.files[0].filename,
+            thumbnailAttachementName: 'thumbnail-'+req.files[0].filename,
+            previewAttachementName: 'preview-'+req.files[0].filename,
             category: data.category ? data.category:'',
             itemForSale: data.itemForSale ? data.itemForSale :'',
             amount: data.amount ? data.amount:'',
@@ -97,6 +106,7 @@ router.post('/update', upload.any(),async (req, res) =>{
     }  
 });
 
+// Fetch data by id
 router.get('/getFormData/:id',async(req,res)=>{
     try{
         console.log(req.params.id)
@@ -109,7 +119,7 @@ router.get('/getFormData/:id',async(req,res)=>{
     } 
 });
 
-
+// Delete data
 router.delete('/delete/:id',async(req,res)=>{
     try{
         const id = req.params.id ;
@@ -121,7 +131,7 @@ router.delete('/delete/:id',async(req,res)=>{
     } 
 });
 
-
+// Fetch all data
 router.get('/list',async(req,res)=>{
     try{
         const data = await formCreationModel.find({});
@@ -136,7 +146,6 @@ router.get('/list',async(req,res)=>{
 // image preview
 router.get('/fetchImage/:file(*)', (req, res) => {
     let file = req.params.file;
-    // let fileLocation = path.join('../uploads/'+file);
     let fileLocation ='./../public/uploads/'+file;
     res.sendFile(path.resolve(__dirname +fileLocation))
 });

@@ -19,9 +19,11 @@ const formCreationSchema = new Schema({
         type: String, 
         required: true
     },
-    compressedattachementName : {
+    thumbnailAttachementName : {
         type: String, 
-        required: true
+    },
+    previewAttachementName : {
+        type: String, 
     },
     category: {
         type: String, 
