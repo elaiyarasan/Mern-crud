@@ -43,6 +43,10 @@ class FormCreate extends Component {
     };
 
     onSubmit(e) {
+        if(!this.state.termAndCond){
+            swal("Please agree the T&C!");
+            return false;
+        }else{
         e.preventDefault();
         const formData = new FormData();
         formData.append(
@@ -69,6 +73,7 @@ class FormCreate extends Component {
             }).catch(err => {
                 swal(err.response.data);
             });
+        }
     }
 
     render() {
@@ -108,9 +113,10 @@ class FormCreate extends Component {
                             accept=".png, .jpg, .jpeg"
                             onChange={this.onFileChange}
                         />
+                        {this.state.attachementName ? 
                          <span>
-                            <img width='300px' height='200px' src={this.state.attachementName} />
-                        </span>
+                            <img width='100px' height='50px' src={this.state.attachementName} />
+                        </span> :""}
                     </div>
                     <div className="form-group form-select form-select-lg mb-3">
                         <label>Category: </label>
@@ -128,7 +134,7 @@ class FormCreate extends Component {
                         <input
                             className="form-check-input"
                             type="radio"
-                            value='Yes'
+                            value={true}
                             name='itemForSale'
                             onChange={(e) => this.setState({ itemForSale: e.target.value })}
                         />
@@ -137,28 +143,29 @@ class FormCreate extends Component {
                         </label>
 
                     </div>
-                    <div className="form-group">
+                    {(this.state.itemForSale=='true') ? 
+                    (<div className="form-group">
                         <label>Amount: </label>
                         <input
                             type="number"
                             className="form-control"
-                            value={this.state.phone}
+                            value={this.state.amount}
                             onChange={(e) => this.setState({ amount: e.target.value })}
                         />
-                    </div>
+                    </div>) :''}
                     <div className="form-check">
                         <input className="form-check-input"
                             type="radio"
-                            value='No'
+                            value={false}
                             name='itemForSale'
-                            onChange={(e) => this.setState({ itemForSale: e.target.value })}
+                            onChange={(e) => this.setState({ itemForSale: e.target.value,amount:0 })}
                         />
                         <label className="form-check-label">
                             No
                         </label>
                     </div>
                     <div className="form-check">
-                        <input className="form-check-input" type="checkbox" onChange={(e) => this.setState({ itemForSale: e.target.checked })} />
+                        <input className="form-check-input" type="checkbox" onChange={(e) => this.setState({ termAndCond: e.target.checked })} />
                         <label className="form-check-label">
                             Accept Terms and Condtions
                         </label>

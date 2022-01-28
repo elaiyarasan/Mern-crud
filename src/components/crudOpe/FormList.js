@@ -75,8 +75,12 @@ class FormList extends Component {
                                 <tr key={index}>
                                     <td>{index + 1}</td>
                                     <td>{listValue.imagetitle}</td>
-                                    <td>{listValue.imagetitle}</td>
                                     <td>{listValue.category}</td>
+                                    <td>
+                                        <span>
+                                            <img width='100px' height='50px' src={URL_API + "form/fetchImage/" + listValue.attachementName} />
+                                        </span>
+                                    </td>
                                     <td>{(listValue.itemForSale) ? (<span>Yes - {listValue.amount}</span>) : (<span>No</span>)}</td>
                                     <td>
                                         <Link to={'/formedit/' + listValue._id} className='btn btn-primary ml-1'><Edit /></Link>

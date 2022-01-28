@@ -31,7 +31,7 @@ const formCreationSchema = new Schema({
     itemForSale: {
         type: String,
         required: true,
-        enum:['true','false']
+        enum:[true,false]
     },
     amount: {type: Number},
     termAndCond: {

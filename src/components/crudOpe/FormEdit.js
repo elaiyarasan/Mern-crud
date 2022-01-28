@@ -32,7 +32,7 @@ class FormEdit extends Component {
             this.setState({ itemForSale: res.data.itemForSale })
             this.setState({ amount: res.data.amount })
             this.setState({ termAndCond: res.data.termAndCond })
-            this.setState({ attachementName: res.data.attachementName })
+            this.setState({ attachementName: URL_API + "form/fetchImage/" + res.data.attachementName })
 
         });
         this.onChangeUser = this.onChangeUser.bind(this);
@@ -47,6 +47,14 @@ class FormEdit extends Component {
     // On file select
     onFileChange = event => {
         this.setState({ selectedFile: event.target.files[0] });
+        var reader = new FileReader();
+        var url = reader.readAsDataURL(event.target.files[0]);
+      
+         reader.onloadend = function (e) {
+            this.setState({
+                attachementName: [reader.result]
+            })
+          }.bind(this);
     };
 
     // // Fetch image
@@ -80,6 +88,9 @@ class FormEdit extends Component {
                 this.state.selectedFile.name,
             );
         }
+        if(this.state.itemForSale=='true' && (this.state.amount==0 || this.state.amount=='')){
+            swal("Please enter valid amount!");return false;
+        }
         const data = {
             id: this.state.id,
             imagetitle: this.state.imagetitle,
@@ -87,13 +98,8 @@ class FormEdit extends Component {
             category: this.state.category,
             itemForSale: this.state.itemForSale,
             amount: this.state.amount,
-            termAndCond: this.state.termAndCond,
         }
         formData.append('anotherdata', JSON.stringify(data))
-
-        console.log(this.state.selectedFile)
-        console.log(this.state.selectedFile)
-
         axios.post(URL_API + 'form/update', formData)
             .then((res) => {
                 swal("File uploaded & date updated successfully!");
@@ -140,7 +146,7 @@ class FormEdit extends Component {
                             onChange={this.onFileChange}
                         />
                         <span>
-                            <img width='300px' height='200px' src={URL_API + "form/fetchImage/" + this.state.attachementName} />
+                            <img width='100px' height='50px' src={this.state.attachementName } />
                         </span>
                     </div>
                     <div className="form-group form-select form-select-lg mb-3">
@@ -161,7 +167,7 @@ class FormEdit extends Component {
                             type="radio"
                             value={true}
                             name='itemForSale'
-                            checked={this.state.itemForSale}
+                            checked={this.state.itemForSale == 'true' ? true : false}
                             onChange={(e) => this.setState({ itemForSale: e.target.value })}
                         />
                         <label className="form-check-label">
@@ -169,7 +175,8 @@ class FormEdit extends Component {
                         </label>
 
                     </div>
-                    <div className="form-group">
+                    {(this.state.itemForSale == 'true') ? 
+                    (<div className="form-group">
                         <label>Amount: </label>
                         <input
                             type="number"
@@ -177,33 +184,22 @@ class FormEdit extends Component {
                             value={this.state.amount}
                             onChange={(e) => this.setState({ amount: e.target.value })}
                         />
-                    </div>
+                    </div>): ''}
                     <div className="form-check">
                         <input className="form-check-input"
                             type="radio"
                             value={false}
                             name='itemForSale'
-                            checked={!this.state.itemForSale}
-                            onChange={(e) => this.setState({ itemForSale: e.target.value })}
+                            checked={this.state.itemForSale == 'false' ? true : false}
+                            onChange={(e) => this.setState({ itemForSale: e.target.value,amount:0 })}
                         />
                         <label className="form-check-label">
                             No
                         </label>
                     </div>
-                    <div className="form-check">
-                        <input className="form-check-input"
-                            type="checkbox"
-                            onChange={(e) => this.setState({ termAndCond: e.target.checked })}
-                            checked={this.state.termAndCond}
-                        />
-                        {/* <img src={"http://localhost:9000/static/public/"+this.state.attachementName}/> */}
-                        <label className="form-check-label">
-                            Accept Terms and Condtions
-                        </label>
-                    </div>
                     <br />
                     <div className="form-group">
-                        <input type="submit" value="Create User" className="btn btn-primary" />
+                        <input type="submit" value="Update User" className="btn btn-primary" />
                     </div>
                 </form>
             </div>

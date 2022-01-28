@@ -3,6 +3,7 @@ const formCreationModel = require('../models/formcreation.model');
 var multer  = require('multer');
 var mkdirp = require('mkdirp');
 const path = require("path");
+const sharp = require('sharp');
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -24,6 +25,16 @@ router.post('/create', upload.any(),async (req, res) =>{
     try {
     const data = JSON.parse(req.body.anotherdata)
     if (req.files) {
+        let fileLocation ='./../public/uploads/'+req.files[0].filename;
+        
+        sharp(path.resolve(__dirname +fileLocation))
+            .resize(300,300)
+            .toFile('./public/uploads/thumbnail-'+req.files[0].filename);
+
+        sharp(path.resolve(__dirname +fileLocation))
+            .resize(900,900)
+            .toFile('./public/uploads/preview-'+req.files[0].filename);
+
        const formData = await new formCreationModel({
             imagetitle: data.imagetitle ? data.imagetitle : 'null',
             imagedescription: data.imagedescription ? data.imagedescription : 'null',
@@ -38,7 +49,7 @@ router.post('/create', upload.any(),async (req, res) =>{
         return res.status(200).json(formData);
         }
     } catch (error) {
-        return res.status(500).json('error');
+        return res.status(500).json(error);
         
     }  
 });
@@ -46,24 +57,43 @@ router.post('/create', upload.any(),async (req, res) =>{
 router.post('/update', upload.any(),async (req, res) =>{
     try {
         const data = JSON.parse(req.body.anotherdata)
-        let g = await formCreationModel.findOne({_id:data.id});
-    if (req.files) {
-       const formData = await new formCreationModel({
+    if (req.files.length>0) {
+
+        let fileLocation ='./../public/uploads/'+req.files[0].filename;
+        sharp(path.resolve(__dirname +fileLocation))
+            .resize(300,300)
+            .toFile('./public/uploads/thumbnail-'+req.files[0].filename);
+
+        sharp(path.resolve(__dirname +fileLocation))
+            .resize(900,900)
+            .toFile('./public/uploads/preview-'+req.files[0].filename);
+
+        const formData =  await formCreationModel.updateOne({ _id: data.id }, { 
             imagetitle: data.imagetitle ? data.imagetitle : 'null',
             imagedescription: data.imagedescription ? data.imagedescription : 'null',
             attachementOrginalName:req.files[0].originalname,
             attachementName:req.files[0].filename,
             compressedattachementName:req.files[0].filename,
             category: data.category ? data.category:'',
-            itemForSale: data.itemForSale,
+            itemForSale: data.itemForSale ? data.itemForSale :'',
             amount: data.amount ? data.amount:'',
             termAndCond:true,
-        }).save();
-        return res.status(200).json(formData);
+        });
+        let latTest = await formCreationModel.findOne({_id:data.id});
+        return res.status(200).json(latTest)
+        }else{
+            const formData =  await formCreationModel.updateOne({ _id: data.id }, { 
+                imagetitle: data.imagetitle ? data.imagetitle : 'null',
+                imagedescription: data.imagedescription ? data.imagedescription : 'null',
+                category: data.category ? data.category:'',
+                itemForSale: data.itemForSale ? data.itemForSale :'',
+                amount: data.amount ? data.amount:'',
+            });     
+            let latTest = await formCreationModel.findOne({_id:data.id});
+            return res.status(200).json(latTest)
         }
     } catch (error) {
-        return res.status(500).json('error');
-        
+        return res.status(500).json(error); 
     }  
 });
 
